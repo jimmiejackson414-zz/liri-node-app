@@ -17,9 +17,13 @@ var omdb = require('omdb');
 // Used to request OMDB movie information
 var request = require('request');
 
+// NPM package to require Spotify
+var spotify = require('spotify');
+
+// Takes in command line from user
 var nodeArgs = process.argv;
 
-// Grabs the name of the movie from user
+// Empty variable to store name of movie from user
 var movieName = "";
 
 
@@ -38,20 +42,29 @@ var client = new TwitterRequest({
 function myTweets() {
     var info = { screen_name: 'athike2012', count: 1 };
     client.get('statuses/user_timeline', info, function(error, tweets, response) {
-        if (!error) {
-            console.log("Tweet created: " + tweets.created_at + "\n" + "Tweet: " + tweets.text);
-        }
+            if (!error) {
+                for (i = 19; i >= 0; i--)
+                    console.log('Tweet #' + (20 - i) + ': ' + tweets[i].text);
+            }
+            // console.log("Tweet created: " + tweets.created_at + "\n" + "Tweet: " + tweets.text);        
     })
 }
-
-// myTweets();
 
 
 
 /////////////
 // SPOTIFY //
 /////////////
+function spotifyThisSong() {
+    spotify.search({ type: 'track', query: 'dancing in the moonlight' }, function(err, data) {
+        if (err) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
 
+        // Do something with 'data' 
+    })
+}
 
 
 //////////
@@ -59,56 +72,49 @@ function myTweets() {
 //////////
 function movieThis() {
 
-    for (var i = 2; i < nodeArgs.length; i++) {
+    for (i = 3; i < nodeArgs.length; i++) {
 
         if (i > 2 && i < nodeArgs.length) {
+
             movieName = movieName + "+" + nodeArgs[i];
+
         } else {
+
             movieName = movieName + nodeArgs[i];
+
         }
+
     }
 
     // Runs request including movie name to OMDB
     var queryUrl = 'http://www.omdbapi.com/?t=' + movieName + '&y=&plot=short&r=json';
 
-    // request(queryUrl, function(err, response, movie) {
+    console.log(queryUrl);
 
-    // 	if (movieName == "") {
-    // 		movieName = "Mr. Nobody";
-    // 	}
-    //     if (!err && response.statusCode == 200) {
-    //         console.log("Title: " + movie.title + "Year: " + JSON.parse(body)["Year"] + "IMDB Rating: " + JSON.parse(body)["imdbRating"] + "Country: " + JSON.parse(body)["Country"] + "Language: " + JSON.parse(body)["Language"] + "Plot: " + JSON.parse(body)["Plot"] + "Actors: " + JSON.parse(body)["Actors"]);
-    //     }
-    // })
+    request(queryUrl, function(error, response, body) {
 
-    omdb.search(queryUrl, function(err, movies) {
-    if(err) {
-        return console.error(err);
-    }
- 
-    if(movies.length < 1) {
-        return console.log('No movies were found!');
-    }
- 
-    // movies.forEach(function(movie) {
-    //     console.log('%s (%d)', movie.title, movie.year);
-    // });
- 	
- 	console.log('Title: ' + movie.title + '\n' + 'Year: ' + movie.year + '\n' + 'IMDB Rating: ' + movie.imdb.rating + '\n' + "Country: " + movie.countries + '\n' + "Language: " + '\n' + "Plot: " + movie.plot + '\n' + "Actors: " + movie.actors);
-});
+        if (!error && response.statusCode == 200) {
 
+            console.log("Title: " + JSON.parse(body)['Title']);
+            console.log("Year: " + JSON.parse(body)["Year"]);
+            console.log("IMDB Rating: " + JSON.parse(body)["imdbRating"]);
+            console.log("Country: " + JSON.parse(body)["Country"]);
+            console.log("Language: " + JSON.parse(body)["Language"]);
+            console.log("Plot: " + JSON.parse(body)["Plot"]);
+            console.log("Actors: " + JSON.parse(body)["Actors"]);
+        }
+    })
+}
 
-movieThis();
 
 /////////////////////
 // DO WHAT IT SAYS //
 /////////////////////
-if (process.argv[2] == "my-tweets") {
-	myTweets();
-} else if (process.argv[2] == "movie-this") {
-	movieThis();
+
+if (process.argv[2] == 'my-tweets') {
+    myTweets();
+} else if (process.argv[2] == 'movie-this') {
+    movieThis();
+} else if (process.argv[2] == 'spotify-this-song') {
+    spotifyThisSong();
 }
-
-
-
-
