@@ -24,7 +24,10 @@ var spotify = require('spotify');
 var nodeArgs = process.argv;
 
 // Empty variable to store name of movie from user
-var movieName = "";
+var movieName = '';
+
+// Empty song variable
+var song = '';
 
 
 
@@ -40,13 +43,12 @@ var client = new TwitterRequest({
 })
 
 function myTweets() {
-    var info = { screen_name: 'athike2012', count: 1 };
+    var info = { screen_name: 'athike2012' };
     client.get('statuses/user_timeline', info, function(error, tweets, response) {
-            if (!error) {
-                for (i = 19; i >= 0; i--)
-                    console.log('Tweet #' + (20 - i) + ': ' + tweets[i].text);
-            }
-            // console.log("Tweet created: " + tweets.created_at + "\n" + "Tweet: " + tweets.text);        
+        if (!error) {
+            for (i = 19; i >= 0; i--)
+                console.log('Tweet #' + (20 - i) + ': ' + tweets[i].text);
+        }
     })
 }
 
@@ -55,14 +57,47 @@ function myTweets() {
 /////////////
 // SPOTIFY //
 /////////////
+
 function spotifyThisSong() {
-    spotify.search({ type: 'track', query: 'dancing in the moonlight' }, function(err, data) {
-        if (err) {
+
+    for (var i = 3; i < process.argv.length; i++) {
+
+        if (i > 3 && i < process.argv.length) {
+
+            song = song + '+' + process.argv[i];
+
+        } else {
+
+            song = song + process.argv[i];
+        }
+    }
+    console.log(song);
+
+
+    // Sets default song to Blink 182's hit song, What's My Age Again?
+    if (song == '') {
+        song = "Whats+My+Age+Again";
+    }
+
+    // Runs the Spotify search and outputs all necessary song information
+    spotify.search({ type: 'track', query: song, limit: '20' }, function(err, data) {
+        if (!err) {
+            for (var i = 0; i < data.tracks.items.length; i++) {
+            	console.log('');
+            	console.log('----------------------------------');
+                console.log('Artist: ' + data.tracks.items[i].artists[0].name);
+                console.log('Song Name: ' + data.tracks.items[i].name);
+                console.log('Album: ' + data.tracks.items[i].album.name);
+                console.log('Preview Link: ' + data.tracks.items[i].preview_url);
+                console.log('----------------------------------');
+                console.log('');
+
+            }
+
+        } else {
             console.log('Error occurred: ' + err);
-            return;
         }
 
-        // Do something with 'data' 
     })
 }
 
@@ -70,6 +105,7 @@ function spotifyThisSong() {
 //////////
 // OMDB //
 //////////
+
 function movieThis() {
 
     for (i = 3; i < nodeArgs.length; i++) {
